@@ -26,22 +26,27 @@
 | スタイリング | styled-components / Tailwind CSS v3 |
 | 認証・API 通信 | AWS Amplify (Auth / API) |
 | 日付処理 | Luxon |
-| ホスティング | Amazon S3 + CloudFront |
+| バックエンド | Amazon Cognito / Amazon API Gateway / Amazon DynamoDB |
+| ホスティング | Amazon S3 + Cloudflare |
 
 ## アーキテクチャ
 
 ```text
 ブラウザ
   │
-  ├─ SPA（S3 + CloudFront で配信）
+  ├─ Cloudflare ──▶ Amazon S3（静的ウェブサイトホスティング）
+  │                   SPA の配信
   │
-  ├─ Amazon Cognito User Pool ────── ゲストごとのログイン
+  ├─ Amazon Cognito User Pool
+  │    ゲストごとのログイン
   │
-  └─ Amazon API Gateway ─────────── GET  /invitation-answers/{userId}
-                                     POST /invitation-answers
+  └─ Amazon API Gateway ──▶ Amazon DynamoDB
+       GET  /invitation-answers/{userId}   回答済みかどうかの取得
+       POST /invitation-answers            出欠回答の保存
+       （Lambda を介さず、マッピングテンプレートで DynamoDB と直接統合）
 ```
 
-バックエンド（API Gateway・Lambda・データストア）の構築は AWS コンソール上で行っており、**その IaC はこのリポジトリには含まれていません**。このリポジトリはフロントエンドの SPA のみを対象としています。
+バックエンド（Cognito・API Gateway・DynamoDB）の構築は AWS コンソール上で行っており、**その IaC はこのリポジトリには含まれていません**。このリポジトリはフロントエンドの SPA のみを対象としています。
 
 ## 実装のポイント
 
