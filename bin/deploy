@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+if [[ $# -eq 2 ]]; then
+  profile=$1
+  prod_bucket=$2
+else
+  echo 'Build and deploy project to the aws s3 bucket'
+  echo
+  echo "USAGE: ${0} <profile> <bucket>"
+  exit 1
+fi
+
+set_short_cache_control() {
+  local object_path=$1
+  local object_uri="s3://${prod_bucket}/${object_path}"
+
+  aws --profile $profile s3 cp ${object_uri} ${object_uri} \
+    --metadata-directive REPLACE \
+    --cache-control max-age=0,must-revalidate
+    # --acl public-read
+}
+
+set_short_cache_control_json() {
+  local object_path=$1
+  local object_uri="s3://${prod_bucket}/${object_path}"
+
+  aws --profile $profile s3 cp ${object_uri} ${object_uri} \
+    --metadata-directive REPLACE \
+    --cache-control max-age=0,must-revalidate \
+    --content-type application/json
+    # --acl public-read
+}
+
+set_short_cache_control_html() {
+  local object_path=$1
+  local object_uri="s3://${prod_bucket}/${object_path}"
+
+  aws --profile $profile s3 cp ${object_uri} ${object_uri} \
+    --metadata-directive REPLACE \
+    --cache-control max-age=0,must-revalidate \
+    --content-type text/html
+    # --acl public-read
+}
+
+yarn build
+
+aws --profile $profile s3 sync build s3://$prod_bucket \
+  --delete \
+  --cache-control max-age=86400
+  # --acl public-read \
+
+set_short_cache_control service-worker.js
+set_short_cache_control_html index.html
+set_short_cache_control_json manifest.json
+
+echo Done at $(date)

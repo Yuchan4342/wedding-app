@@ -1,0 +1,13 @@
+{
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "eslint.enable": true,
+  "eslint.run": "onType",
+  "eslint.codeAction.showDocumentation": {
+    "enable": false
+  },
+  "eslint.workingDirectories": [
+    "."
+  ]
+}

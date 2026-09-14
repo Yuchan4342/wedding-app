@@ -1,0 +1,69 @@
+// アプリの設定ファイルのサンプルです。
+// `cp src/configuration.js{.sample,}` でコピーし、環境に合わせて値を埋めてください。
+// コピー先の src/configuration.js は .gitignore されています。
+
+// AWS Cognito の設定。
+// User Pool と Identity Pool を作成し、それぞれの ID を設定してください。
+const amplifyAuth = {
+    region: '',
+    identityPoolId: '',
+    userPoolId: '',
+    userPoolWebClientId: ''
+  };
+
+// 出欠回答を保存する API の設定。
+// name は API.get / API.post の第1引数として使われるので変更しないでください。
+// エンドポイントの実装（API Gateway + Lambda）はこのリポジトリには含まれていません。
+const amplifyAPI = {
+    endpoints: [
+      {
+        name: 'wedding-app',
+        endpoint: ''
+      }
+    ]
+  };
+
+const amplifyVocabularies = {
+    ja: {
+      'Sign In Account': 'ようこそ！',
+      'Sign In': 'ログイン'
+    }
+  };
+
+// 結婚式の情報。画面に表示される文言はすべてここから読まれます。
+export const eventInfo = {
+    date: '2030-06-15',
+    receptionStartTime: '12:00',
+    ceremonyStartTime: '12:30',
+    partyStartTime: '13:00',
+    partyEndTime: '16:00',
+    // Google カレンダー追加リンク用の日時レンジ
+    calendarDateRange: '20300615T120000/20300615T160000',
+    title: '太郎＆花子結婚式💒',
+    // 招待状の差出人。字間を空けたい場合は名前の中に空白を入れてください
+    groomName: '山 田 太 郎',
+    brideName: '鈴 木 花 子',
+    // 招待状の発行時期と、出欠回答の締切
+    invitationIssuedOn: '2030年4月吉日',
+    rsvpDeadline: '5月15日',
+    location: 'サンプル式場',
+    locationUrl: 'https://example.com/venue/',
+    // Google Maps に表示したい場所の検索クエリ
+    googleMapQuery: '東京駅',
+    // Google Maps Embed API のキー。
+    // SPA なのでビルド成果物に必ず露出します。必ず HTTP リファラ制限をかけてください。
+    // 空にすると MAP セクションごと非表示になります。
+    googleMapKey: '',
+    // 式場が用意するご列席者様専用サイトの URL。空にすると案内を表示しません。
+    guestSiteUrl: '',
+    // 式場が用意する食物アレルギー登録フォームの URL。空にすると案内を表示しません。
+    // 招待者固有のトークンが含まれることがあるので、公開リポジトリには絶対に入れないでください。
+    allergyFormUrl: ''
+  };
+
+export const Copyright = {
+    author: 'Taro Yamada',
+    for: "Taro & Hanako's Wedding"
+  };
+
+export default { amplifyAuth, amplifyAPI, amplifyVocabularies };
