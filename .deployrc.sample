@@ -1,0 +1,8 @@
+# bin/deploy を引数なしで実行したときに使われる設定です。
+# `cp .deployrc{.sample,}` でコピーして値を埋めてください。.deployrc は git 管理外です。
+
+# AWS CLI のプロファイル名
+DEPLOY_AWS_PROFILE=default
+
+# デプロイ先の S3 バケット名（静的ウェブサイトホスティングを有効にしたもの）
+DEPLOY_S3_BUCKET=example.com

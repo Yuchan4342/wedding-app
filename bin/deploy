@@ -1,14 +1,25 @@
 #!/usr/bin/env bash
 
+# 引数を省略した場合はリポジトリ直下の .deployrc（git 管理外）から読む
+deployrc="$(cd "$(dirname "$0")/.." && pwd)/.deployrc"
+
 if [[ $# -eq 2 ]]; then
   profile=$1
   prod_bucket=$2
+elif [[ $# -eq 0 && -f "$deployrc" ]]; then
+  source "$deployrc"
+  profile=${DEPLOY_AWS_PROFILE:?".deployrc に DEPLOY_AWS_PROFILE を設定してください"}
+  prod_bucket=${DEPLOY_S3_BUCKET:?".deployrc に DEPLOY_S3_BUCKET を設定してください"}
 else
   echo 'Build and deploy project to the aws s3 bucket'
   echo
   echo "USAGE: ${0} <profile> <bucket>"
+  echo "       ${0}            # .deployrc から <profile> <bucket> を読む（.deployrc.sample 参照）"
   exit 1
 fi
+
+echo "profile: ${profile}"
+echo "bucket:  s3://${prod_bucket}"
 
 set_short_cache_control() {
   local object_path=$1
@@ -49,7 +60,10 @@ aws --profile $profile s3 sync build s3://$prod_bucket \
   --cache-control max-age=86400
   # --acl public-read \
 
-set_short_cache_control service-worker.js
+# CRA 5 では Service Worker が出力されないため、存在する場合のみ対象にする
+if [[ -f build/service-worker.js ]]; then
+  set_short_cache_control service-worker.js
+fi
 set_short_cache_control_html index.html
 set_short_cache_control_json manifest.json
 

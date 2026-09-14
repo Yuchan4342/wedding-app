@@ -71,13 +71,20 @@ yarn start
 
 ## デプロイ
 
-S3 へ同期するスクリプトを同梱しています。AWS CLI のプロファイルとバケット名を渡してください。
+S3 の静的ウェブサイトホスティングへ同期するスクリプトを同梱しています。
+
+```bash
+cp .deployrc{.sample,}   # プロファイル名とバケット名を記入する（git 管理外）
+bin/deploy               # .deployrc の設定でビルドとアップロードを実行
+```
+
+引数で直接指定することもできます。
 
 ```bash
 bin/deploy <aws-profile> <s3-bucket>
 ```
 
-ビルド後に `s3 sync --delete` で配信し、`index.html` / `manifest.json` / `service-worker.js` だけキャッシュを無効化します。CloudFront を挟んでいる場合は、別途キャッシュの無効化が必要です。
+ビルド後に `s3 sync --delete` で配信し、`index.html` / `manifest.json` / `service-worker.js` だけキャッシュを無効化します。CDN（CloudFront や Cloudflare）を挟んでいる場合は、別途キャッシュのパージが必要です。
 
 ## ディレクトリ構成
 
