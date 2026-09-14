@@ -8,6 +8,16 @@
 > 公開にあたり、新郎新婦の氏名・写真・会場名・日時・式場が発行した URL はすべてサンプルの値に置き換えてあります。
 > 実際に運用した際の設定値は `src/configuration.js`（Git 管理外）に置いていました。
 
+## スクリーンショット
+
+| ログイン | 招待状（カバー・招待文） | 日時・会場・地図 |
+| :---: | :---: | :---: |
+| <img src="docs/screenshots/01-login.png" width="240" alt="ログイン画面"> | <img src="docs/screenshots/02-dashboard-cover.jpg" width="240" alt="招待状のカバーと招待文"> | <img src="docs/screenshots/03-dashboard-information.jpg" width="240" alt="日時・会場の案内と地図"> |
+
+| 出欠回答フォーム | 送信完了 | 回答済み画面 |
+| :---: | :---: | :---: |
+| <img src="docs/screenshots/04-invitation-form.png" width="240" alt="出欠回答フォーム（バリデーションエラー表示中）"> | <img src="docs/screenshots/05-submit-success.png" width="240" alt="送信完了のアラート"> | <img src="docs/screenshots/06-answered.png" width="240" alt="回答済み画面"> |
+
 ## 主な機能
 
 - **招待制のアクセス** — Amazon Cognito User Pool でゲストごとにアカウントを発行し、ログインしたユーザーだけが招待状を閲覧できる
