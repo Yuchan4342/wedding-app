@@ -6,3 +6,6 @@ DEPLOY_AWS_PROFILE=default
 
 # デプロイ先の S3 バケット名（静的ウェブサイトホスティングを有効にしたもの）
 DEPLOY_S3_BUCKET=example.com
+
+# デモモード（認証と API をモックに差し替えたビルド）を配信する場合は true にする
+# DEPLOY_DEMO_MODE=true

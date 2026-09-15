@@ -28,7 +28,7 @@ yarn-error.log*
 
 # private information
 # 新郎新婦の氏名・会場・日時や AWS の各種 ID を含むため追跡しない。
-# src/configuration.js.sample をコピーして作成する。
-/src/configuration.js
+# src/configuration.demo.js をコピーして作成する。
+/src/configuration.local.js
 # デプロイ先の設定。.deployrc.sample をコピーして作成する。
 /.deployrc

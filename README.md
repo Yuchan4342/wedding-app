@@ -6,7 +6,11 @@
 
 > [!NOTE]
 > 公開にあたり、新郎新婦の氏名・写真・会場名・日時・式場が発行した URL はすべてサンプルの値に置き換えてあります。
-> 実際に運用した際の設定値は `src/configuration.js`（Git 管理外）に置いていました。
+> 実際に運用した際の設定値は `src/configuration.local.js`（Git 管理外）に置いていました。
+
+## デモ
+
+<https://wedding.o-char.com> で**デモモード**のビルドを公開しています。認証と API をモックに差し替えてあるので、任意の ID とパスワードでログインし、招待状の閲覧から出欠回答の送信・回答済み画面までを一通り試せます。回答はブラウザの `sessionStorage` にのみ保存され、どこにも送信されません。
 
 ## スクリーンショット
 
@@ -61,26 +65,38 @@
 ## 実装のポイント
 
 - **`withAuthenticator` の独自ラップ** — `aws-amplify-react` の `Authenticator` をラップし、認証状態を Redux に反映させたうえで、ログイン直後に回答済みかどうかを API から取得している（[src/components/Amplify/withAuthenticator.js](src/components/Amplify/withAuthenticator.js)）
-- **設定値の一元化** — 氏名・会場・日時といった式ごとに変わる値をすべて `src/configuration.js` に集約し、コンポーネントにハードコードしない。式場が発行する URL は未設定なら案内ごと非表示になる
+- **設定値の一元化** — 氏名・会場・日時といった式ごとに変わる値をすべて `src/configuration.local.js` に集約し、コンポーネントにハードコードしない。式場が発行する URL は未設定なら案内ごと非表示になる
+- **デモモード** — `aws-amplify` の `Auth` / `API` はシングルトンで、`aws-amplify-react` の `SignIn` も同じインスタンスを参照している。デモモードでは起動時にそのメソッドをモックで上書きし（[src/demo/install.js](src/demo/install.js)）、コンポーネント側を変更せずに Cognito / API Gateway への通信を `sessionStorage` に置き換えている。設定値も Git 管理下の [src/configuration.demo.js](src/configuration.demo.js) に切り替わるため、ローカルの実運用値がデモビルドに混入しない
 - **API Gateway のエスケープ対策** — マッピングテンプレート経由で JSON が壊れる問題への暫定対処として、送信前に改行・引用符・波括弧を除去している（`removeJSONInvalidChars`。[src/features/Invitation/Invitation.js](src/features/Invitation/Invitation.js)）
 - **同伴者の可変長入力** — Redux Form の `FieldArray` で、同伴者を必要な人数だけ追加・削除できるようにしている
 
 ## セットアップ
 
 ```bash
-cp src/configuration.js{.sample,}   # 設定ファイルを作成し、値を埋める
+cp src/configuration.demo.js src/configuration.local.js   # 設定ファイルを作成し、値を埋める
 yarn install
 yarn start
 ```
 
-`src/configuration.js` には Cognito と API Gateway の情報が必要です。これらが未設定だとログイン画面から先に進めません。
+`src/configuration.local.js` には Cognito と API Gateway の情報が必要です。これらが未設定だとログイン画面から先に進めません。
+
+### デモモードで動かす
+
+AWS のリソースを用意しなくても、デモモードなら手元で一通り動かせます。設定値には `src/configuration.demo.js` が使われるので、`src/configuration.local.js` を用意する必要はありません。
+
+```bash
+yarn install
+yarn start:demo
+```
 
 ## スクリプト
 
 | コマンド | 内容 |
 | --- | --- |
 | `yarn start` | 開発サーバーを起動（<http://localhost:3000>） |
+| `yarn start:demo` | デモモードで開発サーバーを起動 |
 | `yarn build` | `build/` に本番ビルドを出力 |
+| `yarn build:demo` | `build/` にデモモードのビルドを出力 |
 | `yarn lint` | ESLint を実行 |
 | `yarn build-tailwind` | `src/index.tailwind.css` から `src/index.css` を生成（start / build の前に自動実行される） |
 
@@ -99,6 +115,8 @@ bin/deploy               # .deployrc の設定でビルドとアップロード�
 bin/deploy <aws-profile> <s3-bucket>
 ```
 
+`.deployrc` に `DEPLOY_DEMO_MODE=true` を書く（または環境変数で渡す）と、デモモードのビルドを配信します。
+
 ビルド後に `s3 sync --delete` で配信し、`index.html` / `manifest.json` / `service-worker.js` だけキャッシュを無効化します。CDN（CloudFront や Cloudflare）を挟んでいる場合は、別途キャッシュのパージが必要です。
 
 ## ディレクトリ構成
@@ -112,13 +130,15 @@ src/
 ├── features/
 │   ├── Dashboard/      招待状の表示（カバー・招待文・案内・地図・カウントダウン）
 │   └── Invitation/     出欠回答フォームと回答済み画面
-├── configuration.js    式ごとの設定値（Git 管理外）
+├── demo/               デモモード用の認証・API のモック
+├── configuration.js         設定値の切り替え（通常モードは local、デモモードは demo を使う）
+├── configuration.demo.js    サンプル兼デモモードの設定値
+├── configuration.local.js   式ごとの設定値（Git 管理外）
 └── colors.js           Tailwind と共有するカラーパレット
 ```
 
 ## 既知の制約
 
-- [デモアプリ](https://wedding.o-char.com)を公開していますが、**ログインが必須のため現状ログイン画面以外を閲覧できません。** 認証と API をモックに差し替えて未ログインでも閲覧できるデモモードを、今後追加する予定です。
 - aws-amplify は当時の実装をそのまま残しており、バージョンが古いままです。
 - 自動テストは整備していません。
 
