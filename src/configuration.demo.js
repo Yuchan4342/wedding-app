@@ -1,6 +1,8 @@
-// アプリの設定ファイルのサンプルです。
-// `cp src/configuration.js{.sample,}` でコピーし、環境に合わせて値を埋めてください。
-// コピー先の src/configuration.js は .gitignore されています。
+// アプリの設定ファイルのサンプル兼、デモモードで使われる設定値です。
+// 通常モードで動かすには `cp src/configuration.demo.js src/configuration.local.js` でコピーし、
+// 環境に合わせて値を埋めてください。コピー先の src/configuration.local.js は .gitignore されています。
+// このファイルはデモモード（REACT_APP_DEMO_MODE=true）のビルドにそのまま使われるので、
+// 公開してよいサンプル値だけを置いてください。
 
 // AWS Cognito の設定。
 // User Pool と Identity Pool を作成し、それぞれの ID を設定してください。

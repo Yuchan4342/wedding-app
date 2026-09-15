@@ -9,11 +9,14 @@ import Amplify from 'aws-amplify';
 import { AmplifyTheme } from 'aws-amplify-react';
 
 import App from './components/App';
+import DemoNotice from './components/DemoNotice';
 import authReducer from './reducers/authReducer';
 import alertReducer from './reducers/alertReducer';
 import invitationAnswerReducer from './reducers/invitationAnswerReducer';
 import * as serviceWorker from './serviceWorker';
 import conf from './configuration';
+import { isDemoMode } from './demo/isDemoMode';
+import { installDemoBackend } from './demo/install';
 
 import './index.css';
 
@@ -21,10 +24,15 @@ import reportWebVitals from './reportWebVitals';
 
 LuxonSettings.defaultLocale = 'ja';
 
-Amplify.configure({
-  Auth: conf.amplifyAuth,
-  API: conf.amplifyAPI
-});
+if (isDemoMode) {
+  // 認証と API をモックに差し替え、Cognito / API Gateway には接続しない
+  installDemoBackend();
+} else {
+  Amplify.configure({
+    Auth: conf.amplifyAuth,
+    API: conf.amplifyAPI
+  });
+}
 Amplify.I18n.setLanguage('ja');
 Amplify.I18n.putVocabularies(conf.amplifyVocabularies);
 
@@ -66,6 +74,7 @@ const store = configureStore({
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <Provider store={store}>
+    {isDemoMode && <DemoNotice />}
     <App theme={theme} />
   </Provider>
 );

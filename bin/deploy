@@ -18,8 +18,18 @@ else
   exit 1
 fi
 
+# .deployrc の DEPLOY_DEMO_MODE=true（または環境変数）でデモモードのビルドを配信する
+if [[ "${DEPLOY_DEMO_MODE:-false}" == "true" ]]; then
+  build_script="build:demo"
+  mode="demo"
+else
+  build_script="build"
+  mode="production"
+fi
+
 echo "profile: ${profile}"
 echo "bucket:  s3://${prod_bucket}"
+echo "mode:    ${mode}"
 
 set_short_cache_control() {
   local object_path=$1
@@ -53,7 +63,7 @@ set_short_cache_control_html() {
     # --acl public-read
 }
 
-yarn build
+yarn "$build_script"
 
 aws --profile $profile s3 sync build s3://$prod_bucket \
   --delete \
