@@ -33,7 +33,7 @@ brew tap hashicorp/tap
 brew install hashicorp/tap/terraform  # 1.10 以上（S3 backend のネイティブロックを使う）
 
 cd infra
-cp terraform.tfvars{.sample,}   # 値を埋める
+cp terraform.tfvars{.sample,}   # コピー後に値を埋める
 cp backend.hcl{.sample,}        # コピー後に state バケット名を埋める
 
 terraform init -backend-config=backend.hcl   # .terraform.lock.hcl はコミットする
