@@ -34,7 +34,7 @@ brew install hashicorp/tap/terraform  # 1.10 以上（S3 backend のネイティ
 
 cd infra
 cp terraform.tfvars{.sample,}   # 値を埋める
-cp backend.hcl{.sample,}        # state バケット名を埋める
+cp backend.hcl{.sample,}        # コピー後に state バケット名を埋める
 
 terraform init -backend-config=backend.hcl   # .terraform.lock.hcl はコミットする
 terraform plan                               # No changes になるはず
@@ -50,7 +50,7 @@ terraform plan                               # No changes になるはず
 
 ```bash
 cp terraform.tfvars{.sample,}
-cp imports.tf{.sample,}          # 既存リソースの ID を埋める
+cp imports.tf{.sample,}          # コピー後に既存リソースの ID を埋める
 
 # 1. versions.tf の backend "s3" ブロックをコメントアウトした状態で、ローカル state のまま取り込む
 terraform init
