@@ -22,6 +22,16 @@ variable "tags" {
   }
 }
 
+# --- Terraform 自身 ---
+
+variable "tfstate_bucket_name" {
+  description = <<-EOT
+    Terraform の state を置く S3 バケット名（tfstate_s3.tf）。
+    backend 側は変数を参照できないため、同じ名前を backend.hcl にも書く。
+  EOT
+  type        = string
+}
+
 # --- 静的ホスティング ---
 
 variable "site_bucket_name" {

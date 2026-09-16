@@ -1,0 +1,11 @@
+# S3 backend のうち、公開したくない値だけをここに置く（Git 管理外）。
+# `cp backend.hcl{.sample,}` でコピーして値を埋め、次のように初期化する:
+#   terraform init -backend-config=backend.hcl
+#
+# key / region / encrypt / use_lockfile は versions.tf 側に書いてある。
+
+# state を置くバケット名。terraform.tfvars の tfstate_bucket_name と同じ値にする
+bucket = "wedding-app-tfstate-example"
+
+# 名前付きプロファイルを使う場合は provider とは別に backend 側にも指定が必要
+# profile = "default"

@@ -3,9 +3,11 @@
 #   cp imports.tf{.sample,}  してから各 id を実際の値に置き換えてください。
 #   imports.tf は AWS アカウント ID やプール ID を含むため .gitignore 済みです。
 #
-#   terraform plan   # 「N to import, 0 to add, 0 to change, 0 to destroy」を目指す
+#   terraform plan   # 「N to import, M to add, 0 to destroy」を目指す（M は state バケット関連）
 #   terraform apply
 #
+# state バケットも無い状態から始める場合の全体の流れは README.md の
+# 「ゼロから構築する場合」を参照してください。
 # 取り込みが終わったら imports.tf は削除して構いません（state に残ります）。
 #
 # id の調べ方:

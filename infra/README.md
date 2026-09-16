@@ -14,6 +14,7 @@
 | [api_gateway.tf](api_gateway.tf) | REST API、2 リソース、GET / POST / OPTIONS × 2、DynamoDB への AWS 統合、マッピングテンプレート、ステージ |
 | [templates/](templates/) | API Gateway のマッピングテンプレート（VTL）。[templates/README.md](templates/README.md) 参照 |
 | [iam.tf](iam.tf) | IAM ロール（**未管理**。理由と手順はファイル内のコメント参照） |
+| [tfstate_s3.tf](tfstate_s3.tf) | Terraform 自身の state を置く S3 バケット（バージョニング、暗号化、パブリックアクセスブロック、`prevent_destroy`） |
 
 管理対象外:
 
@@ -23,22 +24,45 @@
 
 ## セットアップ
 
+state は S3 に置いてあるので、新しいマシンで clone した場合は Git 管理外の設定ファイル
+2 つを用意して `init` するだけで、既存の state に接続できます。
+
 ```bash
 # Macの場合
 brew tap hashicorp/tap
-brew install hashicorp/tap/terraform  # 1.5 以上（import ブロックを使う）
+brew install hashicorp/tap/terraform  # 1.10 以上（S3 backend のネイティブロックを使う）
 
 cd infra
 cp terraform.tfvars{.sample,}   # 値を埋める
-cp imports.tf{.sample,}         # 既存リソースの ID を埋める
+cp backend.hcl{.sample,}        # state バケット名を埋める
 
-terraform init                  # .terraform.lock.hcl はコミットする
-terraform plan                  # 「N to import, 0 to add, 0 to change, 0 to destroy」を目指す
-terraform apply
+terraform init -backend-config=backend.hcl   # .terraform.lock.hcl はコミットする
+terraform plan                               # No changes になるはず
 ```
 
-`terraform.tfvars` と `imports.tf` は AWS アカウント ID やプール ID を含むため
+`terraform.tfvars` / `backend.hcl` / `imports.tf` は AWS アカウント ID やプール ID を含むため
 [.gitignore](.gitignore) 済みです。`*.sample` の側だけをコミットします。
+
+### ゼロから構築する場合
+
+既存リソースを import して取り込む場合の手順です。state バケットも無い状態から始めるため、
+先にローカル state でバケットを作ってから S3 に移します。
+
+```bash
+cp terraform.tfvars{.sample,}
+cp imports.tf{.sample,}          # 既存リソースの ID を埋める
+
+# 1. versions.tf の backend "s3" ブロックをコメントアウトした状態で、ローカル state のまま取り込む
+terraform init
+terraform plan                   # 「N to import, M to add, 0 to destroy」を目指す（M は state バケット関連）
+terraform apply
+
+# 2. backend ブロックのコメントを外し、state を S3 に移す
+cp backend.hcl{.sample,}
+terraform init -backend-config=backend.hcl -migrate-state   # 確認に yes
+terraform plan                   # No changes
+rm terraform.tfstate terraform.tfstate.backup               # 平文の ID を含むので残さない
+```
 
 取り込みが終わったら `imports.tf` は削除して構いません（state に残ります）。
 
@@ -53,6 +77,7 @@ provider のバージョンによって参照するアクションが増減す�
 | サービス | アクション |
 | --- | --- |
 | S3 | バケット本体と各サブリソース（website / versioning / lifecycle / encryption / ownershipControls / publicAccessBlock / policy / tagging）の `Get*` と `Put*`。`aws_s3_bucket` は refresh のたびに未使用の設定（CORS・レプリケーション・ロギングなど）まで読むため、`s3:Get*` をバケット単位で許可するのが実際的 |
+| S3（state バケット） | backend が使う `s3:ListBucket`（バケット）と `s3:GetObject` / `PutObject` / `DeleteObject`（`wedding-app/terraform.tfstate` とロックファイル `wedding-app/terraform.tfstate.tflock`）。plan だけでもロックの作成・削除が走るので、読み取り専用では動かない |
 | DynamoDB | `DescribeTable` / `DescribeTimeToLive` / `DescribeContinuousBackups` / `ListTagsOfResource` / `UpdateTable` / `TagResource` / `UntagResource` |
 | Cognito User Pool | `DescribeUserPool` / `DescribeUserPoolClient` / `ListTagsForResource` / `UpdateUserPool` / `UpdateUserPoolClient` / `TagResource` |
 | Cognito Identity Pool | `DescribeIdentityPool` / `GetIdentityPoolRoles` / `UpdateIdentityPool` / `SetIdentityPoolRoles` / `TagResource` |
@@ -79,11 +104,23 @@ terraform output -json frontend_configuration | jq   # configuration.local.js �
 
 ### state について
 
-既定ではローカル state です。state には Cognito のプール ID などが平文で入るので、
-リポジトリには絶対にコミットしないでください（`.gitignore` 済み）。
-複数マシンから触る場合は [versions.tf](versions.tf) のコメントにある S3 backend を有効にし、
-バケット名などは Git 管理外の `backend.hcl` に書いて
-`terraform init -backend-config=backend.hcl` で初期化します。
+state は [tfstate_s3.tf](tfstate_s3.tf) で作る S3 バケットに置いています
+（[versions.tf](versions.tf) の `backend "s3"`）。
+
+- **バケット名だけ `backend.hcl`（Git 管理外）に分けている** — backend ブロックは変数を
+  参照できないため、公開したくない値は `-backend-config` で渡すしかない。
+  `key` / `region` / `encrypt` / `use_lockfile` はコミットしてある
+- **ロックは S3 ネイティブ（`use_lockfile = true`）** — 実行中は
+  `terraform.tfstate.tflock` が置かれ、同時実行は `Error acquiring the state lock` で止まる。
+  DynamoDB テーブルは使っていない
+- **バケットは自分自身の state を保持している** — `terraform destroy` で自分の state ごと
+  消さないよう `prevent_destroy` を付けている。バケットを消したい場合は先に
+  backend をローカルに戻す
+- **バージョニング有効** — 誤った apply の後は S3 のオブジェクトバージョンから
+  前の state に戻せる
+
+state には Cognito のプール ID などが平文で入ります。ローカルにコピーした場合も
+リポジトリにはコミットしないでください（`*.tfstate*` は `.gitignore` 済み）。
 
 ## 初回 apply で出る想定内の差分
 
