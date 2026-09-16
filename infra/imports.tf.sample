@@ -1,0 +1,189 @@
+# 既存リソースを Terraform の管理下に取り込むための宣言（Terraform 1.5+）。
+#
+#   cp imports.tf{.sample,}  してから各 id を実際の値に置き換えてください。
+#   imports.tf は AWS アカウント ID やプール ID を含むため .gitignore 済みです。
+#
+#   terraform plan   # 「N to import, 0 to add, 0 to change, 0 to destroy」を目指す
+#   terraform apply
+#
+# 取り込みが終わったら imports.tf は削除して構いません（state に残ります）。
+#
+# id の調べ方:
+#   aws cognito-idp list-user-pools --max-results 10
+#   aws cognito-idp list-user-pool-clients --user-pool-id <POOL_ID>
+#   aws cognito-identity list-identity-pools --max-results 10
+#   aws apigateway get-rest-apis
+#   aws apigateway get-resources --rest-api-id <API_ID>
+
+# --- S3 ---
+import {
+  to = aws_s3_bucket.site
+  id = "wedding.example.com"
+}
+import {
+  to = aws_s3_bucket_website_configuration.site
+  id = "wedding.example.com"
+}
+import {
+  to = aws_s3_bucket_versioning.site
+  id = "wedding.example.com"
+}
+import {
+  to = aws_s3_bucket_lifecycle_configuration.site
+  id = "wedding.example.com"
+}
+import {
+  to = aws_s3_bucket_server_side_encryption_configuration.site
+  id = "wedding.example.com"
+}
+import {
+  to = aws_s3_bucket_ownership_controls.site
+  id = "wedding.example.com"
+}
+import {
+  to = aws_s3_bucket_public_access_block.site
+  id = "wedding.example.com"
+}
+import {
+  to = aws_s3_bucket_policy.site
+  id = "wedding.example.com"
+}
+
+# --- DynamoDB ---
+import {
+  to = aws_dynamodb_table.invitation_answers
+  id = "WedatInvitationAnswers"
+}
+
+# --- Cognito ---
+import {
+  to = aws_cognito_user_pool.main
+  id = "ap-northeast-1_XXXXXXXXX"
+}
+import {
+  to = aws_cognito_user_pool_client.web
+  # <user pool id>/<client id>
+  id = "ap-northeast-1_XXXXXXXXX/xxxxxxxxxxxxxxxxxxxxxxxxxx"
+}
+import {
+  to = aws_cognito_user_pool_client.web_secondary
+  id = "ap-northeast-1_XXXXXXXXX/yyyyyyyyyyyyyyyyyyyyyyyyyy"
+}
+import {
+  to = aws_cognito_identity_pool.main
+  id = "ap-northeast-1:00000000-0000-0000-0000-000000000000"
+}
+import {
+  to = aws_cognito_identity_pool_roles_attachment.main
+  id = "ap-northeast-1:00000000-0000-0000-0000-000000000000"
+}
+
+# --- API Gateway ---
+import {
+  to = aws_api_gateway_rest_api.main
+  id = "xxxxxxxxxx"
+}
+import {
+  to = aws_api_gateway_resource.invitation_answers
+  # <rest api id>/<resource id>
+  id = "xxxxxxxxxx/aaaaaa"
+}
+import {
+  to = aws_api_gateway_resource.invitation_answer
+  id = "xxxxxxxxxx/bbbbbb"
+}
+import {
+  to = aws_api_gateway_method.post_invitation_answers
+  # <rest api id>/<resource id>/<http method>
+  id = "xxxxxxxxxx/aaaaaa/POST"
+}
+import {
+  to = aws_api_gateway_integration.post_invitation_answers
+  id = "xxxxxxxxxx/aaaaaa/POST"
+}
+import {
+  to = aws_api_gateway_method_response.post_invitation_answers["200"]
+  # <rest api id>/<resource id>/<http method>/<status code>
+  id = "xxxxxxxxxx/aaaaaa/POST/200"
+}
+import {
+  to = aws_api_gateway_method_response.post_invitation_answers["400"]
+  id = "xxxxxxxxxx/aaaaaa/POST/400"
+}
+import {
+  to = aws_api_gateway_method_response.post_invitation_answers["500"]
+  id = "xxxxxxxxxx/aaaaaa/POST/500"
+}
+import {
+  to = aws_api_gateway_integration_response.post_invitation_answers["200"]
+  id = "xxxxxxxxxx/aaaaaa/POST/200"
+}
+import {
+  to = aws_api_gateway_integration_response.post_invitation_answers["400"]
+  id = "xxxxxxxxxx/aaaaaa/POST/400"
+}
+import {
+  to = aws_api_gateway_integration_response.post_invitation_answers["500"]
+  id = "xxxxxxxxxx/aaaaaa/POST/500"
+}
+import {
+  to = aws_api_gateway_method.get_invitation_answer
+  id = "xxxxxxxxxx/bbbbbb/GET"
+}
+import {
+  to = aws_api_gateway_integration.get_invitation_answer
+  id = "xxxxxxxxxx/bbbbbb/GET"
+}
+import {
+  to = aws_api_gateway_method_response.get_invitation_answer
+  id = "xxxxxxxxxx/bbbbbb/GET/200"
+}
+import {
+  to = aws_api_gateway_integration_response.get_invitation_answer
+  id = "xxxxxxxxxx/bbbbbb/GET/200"
+}
+import {
+  to = aws_api_gateway_method.options["invitation_answers"]
+  id = "xxxxxxxxxx/aaaaaa/OPTIONS"
+}
+import {
+  to = aws_api_gateway_integration.options["invitation_answers"]
+  id = "xxxxxxxxxx/aaaaaa/OPTIONS"
+}
+import {
+  to = aws_api_gateway_method_response.options["invitation_answers"]
+  id = "xxxxxxxxxx/aaaaaa/OPTIONS/200"
+}
+import {
+  to = aws_api_gateway_integration_response.options["invitation_answers"]
+  id = "xxxxxxxxxx/aaaaaa/OPTIONS/200"
+}
+import {
+  to = aws_api_gateway_method.options["invitation_answer"]
+  id = "xxxxxxxxxx/bbbbbb/OPTIONS"
+}
+import {
+  to = aws_api_gateway_integration.options["invitation_answer"]
+  id = "xxxxxxxxxx/bbbbbb/OPTIONS"
+}
+import {
+  to = aws_api_gateway_method_response.options["invitation_answer"]
+  id = "xxxxxxxxxx/bbbbbb/OPTIONS/200"
+}
+import {
+  to = aws_api_gateway_integration_response.options["invitation_answer"]
+  id = "xxxxxxxxxx/bbbbbb/OPTIONS/200"
+}
+import {
+  to = aws_api_gateway_stage.main
+  # <rest api id>/<stage name>
+  id = "xxxxxxxxxx/prod"
+}
+
+# NOTE: aws_api_gateway_deployment は triggers を API から読み取れないため、
+# import しても初回 apply で作り直しになる。同じ構成の再デプロイなので実害はない。
+# 取り込まずに Terraform 側で新しいデプロイを 1 つ作る運用でも問題ない。
+# import {
+#   to = aws_api_gateway_deployment.main
+#   id = "xxxxxxxxxx/zzzzzz"
+# }

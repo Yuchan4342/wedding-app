@@ -1,0 +1,7 @@
+#set($item = $input.path('$.Item'))
+{
+    #if ($item.size() > 0)
+    "userId": "$item.userId.S",
+    "attendance": "$item.attendance.BOOL"
+    #end
+}

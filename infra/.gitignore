@@ -1,0 +1,15 @@
+# ローカル state には Cognito の ID などが平文で入る
+*.tfstate
+*.tfstate.*
+.terraform/
+# .terraform.lock.hcl はプロバイダのバージョンを固定するためコミットする
+
+# 実環境の値。*.sample をコピーして作成する
+terraform.tfvars
+*.auto.tfvars
+backend.hcl
+
+# 既存リソースの ID を含むインポート定義
+imports.tf
+
+crash.log
