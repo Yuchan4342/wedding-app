@@ -1,0 +1,31 @@
+#set($inputRoot = $input.path('$'))
+{
+    "TableName": "${table_name}",
+    "Item": {
+        "userId": {"S": "$inputRoot.userId"},
+        "attendance": {"BOOL": "$inputRoot.attendance"},
+        "firstName": {"S": "$inputRoot.firstName"},
+        "lastName": {"S": "$inputRoot.lastName"},
+        "createdAt": {"S": "$inputRoot.createdAt"}
+        #if ($inputRoot.additionalAttendees.size() > 0)
+            ,"additionalAttendees": {"SS": [
+            #foreach($attendee in $inputRoot.additionalAttendees)
+                "$attendee"#if($foreach.hasNext),#end
+            #end
+          ]}
+        #end
+        ,"postalCode": {"S": "$inputRoot.postalCode"}
+        ,"prefecture": {"S": "$inputRoot.prefecture"}
+        ,"city": {"S": "$inputRoot.city"}
+        ,"address1": {"S": "$inputRoot.address1"}
+        #if ($inputRoot.address2 && $inputRoot.address2 != "")
+            ,"address2": {"S": "$inputRoot.address2"}
+        #end
+        #if ($inputRoot.message && $inputRoot.message != "")
+            ,"message": {"S": "$inputRoot.message"}
+        #end
+        #if ($inputRoot.note && $inputRoot.note != "")
+            ,"note": {"S": "$inputRoot.note"}
+        #end
+    }
+}

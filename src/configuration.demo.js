@@ -20,7 +20,12 @@ const amplifyAPI = {
     endpoints: [
       {
         name: 'wedding-app',
-        endpoint: ''
+        endpoint: '',
+        // API Gateway は IAM 認可なので、Amplify は Identity Pool の
+        // クレデンシャルでリクエストに SigV4 署名する。その署名スコープに
+        // 使われるリージョンで、未指定だと undefined のまま署名されて
+        // 403「Credential should be scoped to a valid region.」になる。
+        region: amplifyAuth.region
       }
     ]
   };

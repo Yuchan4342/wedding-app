@@ -1,0 +1,20 @@
+# `cp terraform.tfvars{.sample,}` でコピーして値を埋めてください。
+# terraform.tfvars は .gitignore 済みです（AWS アカウント ID を含むため）。
+
+aws_region = "ap-northeast-1"
+aws_profile = "default"
+
+# SPA を配信する S3 バケット名（= 公開ドメイン名）
+site_bucket_name = "wedding.example.com"
+
+# bin/deploy を実行する IAM ユーザーの ARN
+site_deployer_user_arn = "arn:aws:iam::000000000000:user/your-name"
+
+# Cognito のメール Reply-To
+cognito_reply_to_email = "you@example.com"
+
+# Identity Pool の authenticated ロール ARN
+cognito_authenticated_role_arn = "arn:aws:iam::000000000000:role/service-role/Cognito_xxxxxx_Role"
+
+# API Gateway → DynamoDB 用ロール ARN
+api_integration_role_arn = "arn:aws:iam::000000000000:role/APIGateway_accessDynamoDB"
