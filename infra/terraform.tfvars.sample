@@ -1,8 +1,11 @@
 # `cp terraform.tfvars{.sample,}` でコピーして値を埋めてください。
 # terraform.tfvars は .gitignore 済みです（AWS アカウント ID を含むため）。
 
-aws_region = "ap-northeast-1"
+aws_region  = "ap-northeast-1"
 aws_profile = "default"
+
+# Terraform の state を置く S3 バケット名。backend.hcl の bucket と同じ値にする
+tfstate_bucket_name = "wedding-app-tfstate-example"
 
 # SPA を配信する S3 バケット名（= 公開ドメイン名）
 site_bucket_name = "wedding.example.com"
