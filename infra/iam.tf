@@ -67,7 +67,7 @@ resource "aws_iam_role_policy" "cognito_authenticated_invoke_api" {
 #
 # resource "aws_iam_role" "api_gateway_dynamodb" {
 #   name        = "APIGateway_accessDynamoDB"
-#   description = "Allows DAX to call DynamoDB on your behalf."
+#   description = ""
 #
 #   assume_role_policy = jsonencode({
 #     Version = "2012-10-17"
