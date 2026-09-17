@@ -61,6 +61,8 @@
        （IAM 認可。Amplify が Identity Pool のクレデンシャルで SigV4 署名する）
 ```
 
+利用者と外部サービス（Cognito・Google Maps・Google カレンダー・式場のサイト）まで含めた全体像は、C4 モデルの System Context 図として [docs/architecture/](docs/architecture/) にまとめてあります。Structurizr DSL（[workspace.dsl](docs/architecture/workspace.dsl)）を正として Mermaid を生成しています。
+
 バックエンド（Cognito・API Gateway・DynamoDB）と S3 バケットは当初 AWS コンソール上で構築しましたが、その設定値を読み取って [infra/](infra/) に Terraform のコードとして起こしてあります。既存リソースは `import` で Terraform の管理下に取り込む前提なので、新規作成にも再現にも使えます。詳細は [infra/README.md](infra/README.md) を参照してください。
 
 ## 実装のポイント
