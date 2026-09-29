@@ -56,6 +56,8 @@ workspace "Wedding App" "結婚式の Web 招待状アプリケーションの C
         // 日本語を描画するためのフォント指定（export.sh がビルドするイメージに入っている）
         properties {
             "plantuml.skinparams" "defaultFontName=Noto Sans CJK JP"
+            // Structurizr が出力したスタイルを上書きする（理由はファイル内のコメント参照）
+            "plantuml.includes" "boundary-style.puml"
         }
 
         // autoLayout の引数は <方向> <ランク間隔> <ノード間隔>。

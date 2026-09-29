@@ -30,11 +30,11 @@ structurizr export -w workspace.dsl -f plantuml -o .
 docker build -q -t "${plantuml_image}" "${arch_dir}" > /dev/null
 
 # 凡例（*-key.puml）は README で使っていないので描画しない
-rm -f "${arch_dir}"/*-key.puml
+rm -f "${arch_dir}"/structurizr-*-key.puml
 plantuml -tsvg 'structurizr-*.puml'
 
 # .puml は .svg の中間生成物なので残さない（.gitignore 済み）
-rm -f "${arch_dir}"/*.puml
+rm -f "${arch_dir}"/structurizr-*.puml
 
 echo
 echo "生成されたファイル:"

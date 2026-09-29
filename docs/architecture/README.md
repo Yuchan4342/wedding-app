@@ -31,7 +31,8 @@ Component 図（SPA 内部のコンポーネント分割）は必要になった
 
 Wedding App の中身を、配信経路（Cloudflare → S3 → ブラウザ）と
 データの流れ（SPA → API Gateway → DynamoDB）に分けて示します。
-AWS 上のリソース（[infra/](../../infra/) の Terraform 管理対象）は枠で囲んであります。
+枠は 2 種類あります。外側の青い実線が **Wedding App**（システムの境界）、
+内側の点線が **Amazon Web Services**（[infra/](../../infra/) の Terraform 管理対象）です。
 
 ![Container 図](structurizr-Containers.svg)
 
