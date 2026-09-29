@@ -1,6 +1,6 @@
 // Wedding App の C4 モデル定義（Structurizr DSL）。
-// このファイルが図の正で、Mermaid は export.sh で生成する。
-// 編集したら export.sh を実行し、生成された .mmd と README.md の埋め込みも更新すること。
+// このファイルが図の正で、SVG は export.sh（Structurizr → PlantUML）で生成する。
+// 編集したら export.sh を実行し、生成された .svg もあわせてコミットすること。
 workspace "Wedding App" "結婚式の Web 招待状アプリケーションの C4 モデル" {
 
     model {
@@ -9,15 +9,19 @@ workspace "Wedding App" "結婚式の Web 招待状アプリケーションの C
 
         weddingApp = softwareSystem "Wedding App" "結婚式の Web 招待状。招待状の表示・カウントダウン・出欠回答フォームを提供する（SPA + API Gateway + DynamoDB）" {
             cdn = container "CDN" "配信元の S3 を隠し、HTTPS とキャッシュを担う。DNS も含めて Cloudflare 側の設定で、Terraform の管理対象外" "Cloudflare"
-            hosting = container "静的ホスティング" "ビルド成果物（HTML / JS / CSS / 画像）を置く。Cloudflare の IP レンジからの GetObject だけを許可する" "Amazon S3（静的ウェブサイトホスティング）"
             spa = container "招待状 SPA" "招待状の表示、カウントダウン、出欠回答フォーム。ブラウザ上で動作し、式ごとの設定値は configuration.local.js から読む" "React 18 / Redux / AWS Amplify"
-            api = container "出欠回答 API" "GET /invitation-answers/{userId} と POST /invitation-answers。Lambda を介さず、VTL マッピングテンプレートで DynamoDB と直接統合する。IAM 認可" "Amazon API Gateway（REST API）"
-            table = container "回答テーブル" "出欠回答を 1 ゲスト 1 アイテムで保存する（ハッシュキー userId）" "Amazon DynamoDB"
+
+            // AWS 上のリソースはまとめて枠で囲む（infra/ の Terraform 管理対象）
+            group "Amazon Web Services" {
+                hosting = container "静的ホスティング" "ビルド成果物（HTML / JS / CSS / 画像）を置く。Cloudflare の IP レンジからの GetObject だけを許可する" "Amazon S3（静的ウェブサイトホスティング）" "Amazon S3"
+                api = container "出欠回答 API" "GET /invitation-answers/{userId} と POST /invitation-answers。Lambda を介さず、VTL マッピングテンプレートで DynamoDB と直接統合する。IAM 認可" "Amazon API Gateway（REST API）" "Amazon API Gateway"
+                table = container "回答テーブル" "出欠回答を 1 ゲスト 1 アイテムで保存する（ハッシュキー userId）" "Amazon DynamoDB" "Amazon DynamoDB"
+            }
         }
 
-        cognito = softwareSystem "ID 管理（Amazon Cognito）" "ゲストのアカウント（ID とパスワード）を保持する。管理者が作成したユーザーだけがログインでき、サインアップは開放していない。User Pool でログインを、Identity Pool で API 呼び出し用の一時クレデンシャル発行を担う" "External"
-        googleMaps = softwareSystem "Google Maps Embed API" "会場の地図を iframe で埋め込む" "External"
-        googleCalendar = softwareSystem "Google カレンダー" "「カレンダーに追加」リンクの遷移先" "External"
+        cognito = softwareSystem "ID 管理（Amazon Cognito）" "ゲストのアカウント（ID とパスワード）を保持する。管理者が作成したユーザーだけがログインでき、サインアップは開放していない。User Pool でログインを、Identity Pool で API 呼び出し用の一時クレデンシャル発行を担う" "External,Amazon Cognito"
+        googleMaps = softwareSystem "Google Maps Embed API" "会場の地図を iframe で埋め込む" "External,Google Maps"
+        googleCalendar = softwareSystem "Google カレンダー" "「カレンダーに追加」リンクの遷移先" "External,Google Calendar"
         venueSite = softwareSystem "式場のゲスト向けサイト" "式場が用意するご列席者様専用サイトと食物アレルギー登録フォーム（URL を設定した場合のみ案内）" "External"
 
         // System Context レベルの関係
@@ -49,6 +53,11 @@ workspace "Wedding App" "結婚式の Web 招待状アプリケーションの C
     }
 
     views {
+        // 日本語を描画するためのフォント指定（export.sh がビルドするイメージに入っている）
+        properties {
+            "plantuml.skinparams" "defaultFontName=Noto Sans CJK JP"
+        }
+
         systemContext weddingApp "SystemContext" "Wedding App と利用者・外部システムの関係" {
             include *
             autoLayout lr
@@ -76,6 +85,29 @@ workspace "Wedding App" "結婚式の Web 招待状アプリケーションの C
             element "External" {
                 background #999999
                 color #ffffff
+            }
+
+            // サービスのアイコン。PlantUML が描画時に URL から取得するため、
+            // エクスポートにはネットワーク接続が必要。
+            // AWS: awslabs/aws-icons-for-plantuml（AWS 公式のアーキテクチャアイコン）
+            element "Amazon S3" {
+                icon https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/main/dist/Storage/SimpleStorageService.png
+            }
+            element "Amazon API Gateway" {
+                icon https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/main/dist/NetworkingContentDelivery/APIGateway.png
+            }
+            element "Amazon DynamoDB" {
+                icon https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/main/dist/Database/DynamoDB.png
+            }
+            element "Amazon Cognito" {
+                icon https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/main/dist/SecurityIdentityCompliance/Cognito.png
+            }
+            // Google: gstatic.com の公式プロダクトアイコン
+            element "Google Maps" {
+                icon https://www.gstatic.com/images/branding/product/2x/maps_96dp.png
+            }
+            element "Google Calendar" {
+                icon https://www.gstatic.com/images/branding/product/2x/calendar_96dp.png
             }
         }
     }
