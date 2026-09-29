@@ -17,6 +17,7 @@ Component 図（SPA 内部のコンポーネント分割）は必要になった
 システムを 1 つの箱として扱い、誰が使い、どの外部サービスに依存しているかを示します。
 
 ```mermaid
+%%{init: {"flowchart": {"curve": "linear"}}}%%
 graph LR
   linkStyle default fill:none,stroke:#444444
 
@@ -65,6 +66,7 @@ Wedding App の中身を、配信経路（Cloudflare → S3 → ブラウザ）�
 内側が **Amazon Web Services**（[infra/](../../infra/) の Terraform 管理対象）です。
 
 ```mermaid
+%%{init: {"flowchart": {"curve": "linear"}}}%%
 graph LR
   linkStyle default fill:none,stroke:#444444
 
@@ -148,7 +150,9 @@ docs/architecture/export.sh   # Docker が必要。validate → export の順に
 - 出力ファイル名は `structurizr-<ビューのキー>.mmd`。ビューを増やしたらファイルも増える
 - Mermaid の出力は `graph`（flowchart）形式で、Mermaid 独自の `C4Context` 記法ではない。GitHub と VS Code の Markdown プレビューでそのまま描画できる
 - コンテナ間の関係を書くと、システム間の関係が自動で補完される（implied relationship）。System Context レベルで表現を変えたい関係は、`workspace.dsl` のように明示的に書いておくと補完されない
-- **`export.sh` は生成後に `linkStyle` を書き換えている** — Structurizr は線のスタイルに `fill`（塗り）を白で指定してくるが、線は `stroke`（輪郭）で描くものなので、そのままだと曲がった線が白く塗りつぶされて途切れて見える。GitHub 上でも同じことが起きるため打ち消している
+- **`export.sh` は生成された Mermaid に 2 つ手を入れている** — どちらも GitHub のレンダリングにも効く
+  - 先頭に `%%{init: {"flowchart": {"curve": "linear"}}}%%` を足して、矢印を曲線から直線＋角にしている（Mermaid の既定は `basis` で、緩やかな曲線になる）
+  - `linkStyle` の `fill` を打ち消している。Structurizr は線のスタイルに `fill`（塗り）を白で指定してくるが、線は `stroke`（輪郭）で描くものなので、そのままだと曲がった線が白く塗りつぶされて途切れて見える
 
 ### Mermaid を使っている理由
 
