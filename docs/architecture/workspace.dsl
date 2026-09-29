@@ -58,14 +58,18 @@ workspace "Wedding App" "結婚式の Web 招待状アプリケーションの C
             "plantuml.skinparams" "defaultFontName=Noto Sans CJK JP"
         }
 
+        // autoLayout の引数は <方向> <ランク間隔> <ノード間隔>。
+        // 省略時（ranksep 20 / nodesep 5 相当）だと要素が詰まって見えるので広げている。
+        // lr なので、ノード間隔が縦に並ぶ要素どうしの間隔になる。
+
         systemContext weddingApp "SystemContext" "Wedding App と利用者・外部システムの関係" {
             include *
-            autoLayout lr
+            autoLayout lr 300 600
         }
 
         container weddingApp "Containers" "Wedding App を構成するコンテナ" {
             include *
-            autoLayout lr
+            autoLayout lr 300 600
         }
 
         styles {
