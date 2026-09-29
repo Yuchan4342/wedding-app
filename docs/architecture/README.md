@@ -8,16 +8,46 @@ Component 図（SPA 内部のコンポーネント分割）は必要になった
 | ファイル | 役割 |
 | --- | --- |
 | [workspace.dsl](workspace.dsl) | Structurizr DSL。**図の正**はこのファイルで、要素・関係・見た目はここで編集する |
-| [structurizr-SystemContext.svg](structurizr-SystemContext.svg) | System Context 図。`workspace.dsl` から生成するので手で編集しない |
-| [structurizr-Containers.svg](structurizr-Containers.svg) | Container 図。同上 |
-| [export.sh](export.sh) | Docker で `workspace.dsl` を検証し、SVG を再生成するスクリプト |
-| [Dockerfile](Dockerfile) | 日本語を描画できる PlantUML イメージ（`export.sh` がビルドする） |
+| [structurizr-SystemContext.mmd](structurizr-SystemContext.mmd) | System Context 図の Mermaid。`workspace.dsl` から生成するので手で編集しない |
+| [structurizr-Containers.mmd](structurizr-Containers.mmd) | Container 図の Mermaid。同上 |
+| [export.sh](export.sh) | Docker で `workspace.dsl` を検証し、Mermaid を再生成するスクリプト |
 
 ## System Context 図
 
 システムを 1 つの箱として扱い、誰が使い、どの外部サービスに依存しているかを示します。
 
-![System Context 図](structurizr-SystemContext.svg)
+```mermaid
+graph LR
+  linkStyle default fill:none,stroke:#444444
+
+  subgraph diagram ["System Context View: Wedding App"]
+    style diagram fill:#ffffff,stroke:#ffffff
+
+    1["<div style='font-weight: bold'>ゲスト（招待客）</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>管理者から配布された ID<br />でログインし、招待状を閲覧して出欠を回答する</div>"]
+    style 1 fill:#08427b,stroke:#052e56,color:#ffffff
+    10["<div style='font-weight: bold'>Google Maps Embed API</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>会場の地図を iframe で埋め込む</div>"]
+    style 10 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    11["<div style='font-weight: bold'>Google カレンダー</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>「カレンダーに追加」リンクの遷移先</div>"]
+    style 11 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    12["<div style='font-weight: bold'>式場のゲスト向けサイト</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>式場が用意するご列席者様専用サイトと食物アレルギー登録フォーム（URL<br />を設定した場合のみ案内）</div>"]
+    style 12 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    2["<div style='font-weight: bold'>管理者（新郎新婦）</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>ゲストのアカウントを発行し、回答を確認し、アプリをデプロイする</div>"]
+    style 2 fill:#08427b,stroke:#052e56,color:#ffffff
+    3["<div style='font-weight: bold'>Wedding App</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>結婚式の Web<br />招待状。招待状の表示・カウントダウン・出欠回答フォームを提供する（SPA<br />+ API Gateway + DynamoDB）</div>"]
+    style 3 fill:#1168bd,stroke:#0b4884,color:#ffffff
+    9["<div style='font-weight: bold'>ID 管理（Amazon Cognito）</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>ゲストのアカウント（ID<br />とパスワード）を保持する。管理者が作成したユーザーだけがログインでき、サインアップは開放していない。User<br />Pool でログインを、Identity Pool で<br />API 呼び出し用の一時クレデンシャル発行を担う</div>"]
+    style 9 fill:#999999,stroke:#6b6b6b,color:#ffffff
+
+    1-. "<div>招待状を閲覧し、出欠を回答する</div><div style='font-size: 70%'>[HTTPS]</div>" .->3
+    2-. "<div>ビルド・デプロイし、回答を確認する</div><div style='font-size: 70%'>[bin/deploy, AWS コンソール]</div>" .->3
+    2-. "<div>ゲストごとのアカウントを発行する</div><div style='font-size: 70%'>[AWS コンソール / CLI]</div>" .->9
+    3-. "<div>ログイン認証と一時クレデンシャルの取得</div><div style='font-size: 70%'>[Amplify Auth]</div>" .->9
+    3-. "<div>会場の地図を表示する</div><div style='font-size: 70%'>[iframe]</div>" .->10
+    3-. "<div>予定追加リンクへ遷移する</div><div style='font-size: 70%'>[外部リンク]</div>" .->11
+    3-. "<div>専用サイト・アレルギー登録フォームへ案内する</div><div style='font-size: 70%'>[外部リンク]</div>" .->12
+
+  end
+```
 
 ### 読み方
 
@@ -31,10 +61,65 @@ Component 図（SPA 内部のコンポーネント分割）は必要になった
 
 Wedding App の中身を、配信経路（Cloudflare → S3 → ブラウザ）と
 データの流れ（SPA → API Gateway → DynamoDB）に分けて示します。
-枠は 2 種類あります。外側の青い実線が **Wedding App**（システムの境界）、
-内側の点線が **Amazon Web Services**（[infra/](../../infra/) の Terraform 管理対象）です。
+枠は 2 種類あります。外側が **Wedding App**（システムの境界）、
+内側が **Amazon Web Services**（[infra/](../../infra/) の Terraform 管理対象）です。
 
-![Container 図](structurizr-Containers.svg)
+```mermaid
+graph LR
+  linkStyle default fill:none,stroke:#444444
+
+  subgraph diagram ["Container View: Wedding App"]
+    style diagram fill:#ffffff,stroke:#ffffff
+
+    1["<div style='font-weight: bold'>ゲスト（招待客）</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>管理者から配布された ID<br />でログインし、招待状を閲覧して出欠を回答する</div>"]
+    style 1 fill:#08427b,stroke:#052e56,color:#ffffff
+    2["<div style='font-weight: bold'>管理者（新郎新婦）</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>ゲストのアカウントを発行し、回答を確認し、アプリをデプロイする</div>"]
+    style 2 fill:#08427b,stroke:#052e56,color:#ffffff
+    9["<div style='font-weight: bold'>ID 管理（Amazon Cognito）</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>ゲストのアカウント（ID<br />とパスワード）を保持する。管理者が作成したユーザーだけがログインでき、サインアップは開放していない。User<br />Pool でログインを、Identity Pool で<br />API 呼び出し用の一時クレデンシャル発行を担う</div>"]
+    style 9 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    10["<div style='font-weight: bold'>Google Maps Embed API</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>会場の地図を iframe で埋め込む</div>"]
+    style 10 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    11["<div style='font-weight: bold'>Google カレンダー</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>「カレンダーに追加」リンクの遷移先</div>"]
+    style 11 fill:#999999,stroke:#6b6b6b,color:#ffffff
+    12["<div style='font-weight: bold'>式場のゲスト向けサイト</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>式場が用意するご列席者様専用サイトと食物アレルギー登録フォーム（URL<br />を設定した場合のみ案内）</div>"]
+    style 12 fill:#999999,stroke:#6b6b6b,color:#ffffff
+
+    subgraph 3 ["Wedding App"]
+      style 3 fill:#ffffff,stroke:#0b4884,color:#0b4884
+
+      subgraph group1 ["Amazon Web Services"]
+        style group1 fill:#ffffff,stroke:#cccccc,color:#cccccc,stroke-dasharray:5
+
+        6["<div style='font-weight: bold'>静的ホスティング</div><div style='font-size: 70%; margin-top: 0px'>[Container: Amazon S3（静的ウェブサイトホスティング）]</div><div style='font-size: 80%; margin-top:10px'>ビルド成果物（HTML / JS / CSS /<br />画像）を置く。Cloudflare の IP レンジからの<br />GetObject だけを許可する</div>"]
+        style 6 fill:#438dd5,stroke:#2e6295,color:#ffffff
+        7["<div style='font-weight: bold'>出欠回答 API</div><div style='font-size: 70%; margin-top: 0px'>[Container: Amazon API Gateway（REST API）]</div><div style='font-size: 80%; margin-top:10px'>GET<br />/invitation-answers/{userId}<br />と POST<br />/invitation-answers。Lambda<br />を介さず、VTL マッピングテンプレートで<br />DynamoDB と直接統合する。IAM 認可</div>"]
+        style 7 fill:#438dd5,stroke:#2e6295,color:#ffffff
+        8["<div style='font-weight: bold'>回答テーブル</div><div style='font-size: 70%; margin-top: 0px'>[Container: Amazon DynamoDB]</div><div style='font-size: 80%; margin-top:10px'>出欠回答を 1 ゲスト 1<br />アイテムで保存する（ハッシュキー userId）</div>"]
+        style 8 fill:#438dd5,stroke:#2e6295,color:#ffffff
+      end
+
+      4["<div style='font-weight: bold'>CDN</div><div style='font-size: 70%; margin-top: 0px'>[Container: Cloudflare]</div><div style='font-size: 80%; margin-top:10px'>配信元の S3 を隠し、HTTPS<br />とキャッシュを担う。DNS も含めて Cloudflare<br />側の設定で、Terraform の管理対象外</div>"]
+      style 4 fill:#438dd5,stroke:#2e6295,color:#ffffff
+      5["<div style='font-weight: bold'>招待状 SPA</div><div style='font-size: 70%; margin-top: 0px'>[Container: React 18 / Redux / AWS Amplify]</div><div style='font-size: 80%; margin-top:10px'>招待状の表示、カウントダウン、出欠回答フォーム。ブラウザ上で動作し、式ごとの設定値は<br />configuration.local.js から読む</div>"]
+      style 5 fill:#438dd5,stroke:#2e6295,color:#ffffff
+    end
+
+    2-. "<div>ゲストごとのアカウントを発行する</div><div style='font-size: 70%'>[AWS コンソール / CLI]</div>" .->9
+    1-. "<div>招待状の URL を開く</div><div style='font-size: 70%'>[HTTPS]</div>" .->4
+    1-. "<div>招待状を閲覧し、出欠を回答する</div><div style='font-size: 70%'>[Web ブラウザ]</div>" .->5
+    2-. "<div>ビルド成果物を同期する</div><div style='font-size: 70%'>[bin/deploy（aws s3 sync）]</div>" .->6
+    2-. "<div>回答を確認する</div><div style='font-size: 70%'>[AWS コンソール]</div>" .->8
+    4-. "<div>SPA のファイルを取得してキャッシュする</div><div style='font-size: 70%'>[HTTPS]</div>" .->6
+    4-. "<div>SPA をブラウザへ配信する</div><div style='font-size: 70%'>[HTTPS]</div>" .->5
+    5-. "<div>ログインと一時クレデンシャルの取得</div><div style='font-size: 70%'>[Amplify Auth / HTTPS]</div>" .->9
+    5-. "<div>回答済みかを取得し、出欠回答を送信する</div><div style='font-size: 70%'>[JSON / HTTPS（SigV4 署名）]</div>" .->7
+    5-. "<div>会場の地図を表示する</div><div style='font-size: 70%'>[iframe]</div>" .->10
+    5-. "<div>予定追加リンクへ遷移する</div><div style='font-size: 70%'>[外部リンク]</div>" .->11
+    5-. "<div>専用サイト・アレルギー登録フォームへ案内する</div><div style='font-size: 70%'>[外部リンク]</div>" .->12
+    7-. "<div>回答を読み書きする</div><div style='font-size: 70%'>[GetItem / PutItem（VTL マッピングテンプレート）]</div>" .->8
+
+  end
+```
 
 ### 読み方
 
@@ -53,47 +138,27 @@ Cognito・API Gateway・DynamoDB のいずれにも接続せず、回答は `ses
 
 ## 図の更新手順
 
-`workspace.dsl` を編集したら、SVG を再生成してまとめてコミットします。
+`workspace.dsl` を編集したら、Mermaid を再生成して **この README の `mermaid` ブロックも差し替え**、まとめてコミットします。
 
 ```bash
-docs/architecture/export.sh
+docs/architecture/export.sh   # Docker が必要。validate → export の順に実行する
 ```
 
-やっていること:
+- Docker イメージは [structurizr/structurizr](https://hub.docker.com/r/structurizr/structurizr) を使う。旧 `structurizr/cli` は非推奨化され、バナーを出すだけで動かない
+- 出力ファイル名は `structurizr-<ビューのキー>.mmd`。ビューを増やしたらファイルも増える
+- Mermaid の出力は `graph`（flowchart）形式で、Mermaid 独自の `C4Context` 記法ではない。GitHub と VS Code の Markdown プレビューでそのまま描画できる
+- コンテナ間の関係を書くと、システム間の関係が自動で補完される（implied relationship）。System Context レベルで表現を変えたい関係は、`workspace.dsl` のように明示的に書いておくと補完されない
+- **`export.sh` は生成後に `linkStyle` を書き換えている** — Structurizr は線のスタイルに `fill`（塗り）を白で指定してくるが、線は `stroke`（輪郭）で描くものなので、そのままだと曲がった線が白く塗りつぶされて途切れて見える。GitHub 上でも同じことが起きるため打ち消している
 
-```text
-workspace.dsl --[structurizr]--> *.puml --[plantuml]--> *.svg
-```
+### Mermaid を使っている理由
 
-- Docker が必要。[structurizr/structurizr](https://hub.docker.com/r/structurizr/structurizr) と、
-  [Dockerfile](Dockerfile) からビルドする PlantUML イメージを使う。初回だけビルドが走る
-- **実行にはネットワーク接続が必要** — PlantUML が描画時にサービスのアイコンを URL から取得する。
-  取得した画像は SVG に base64 で埋め込まれるので、閲覧側での通信は発生しない
-- 中間生成物の `*.puml` は残さない（[.gitignore](.gitignore) 済み）
-- 出力ファイル名は `structurizr-<ビューのキー>.svg`。ビューを増やしたらファイルも増える
-- コンテナ間の関係を書くと、システム間の関係が自動で補完される（implied relationship）。
-  System Context レベルで表現を変えたい関係は、`workspace.dsl` のように明示的に書いておくと補完されない
+PlantUML でも出力できますが、以下の理由で Mermaid を採用しています。
 
-### PlantUML と ELK を使っている理由
+- **GitHub がそのまま描画する** — 図を画像ファイルとして持たずに済み、この README に埋め込んだテキストがそのまま図になる
+- **矢印とラベルの対応が分かりやすい** — Mermaid はラベルを線の上に重ねて配置する。PlantUML（Graphviz）はラベルを線の横に置くため、長い矢印ではどの線の説明か分かりにくくなる
+- **ツールが Docker の structurizr だけで完結する** — PlantUML を使う場合、日本語フォントを入れたイメージを別途用意する必要がある
 
-当初は Mermaid で出力していましたが、以下の理由で PlantUML に移行しました。
-
-- **アイコンを表示できない** — Structurizr の Mermaid エクスポーターは `icon` の指定を無視する
-- **矢印とラベルが重なる** — Mermaid（dagre）はエッジのラベルをノードとして配置するため、
-  関係が増えると重なって読めなくなる。設定では回避できない
-
-さらに、PlantUML の既定のレイアウトエンジン（Graphviz）もエッジのラベルを中継ノードとして
-配置するため、長い矢印ではラベルが線から離れ、どの矢印の説明か分かりにくくなります。
-そこで [boundary-style.puml](boundary-style.puml) の `!pragma layout elk` で ELK に切り替えています。
-ELK はラベルを線に沿って置き、線も直交に整理するので対応を追いやすくなります。
-
-ELK に切り替えたことで効かなくなる設定があります。いずれも指定しても無視されるだけですが、
-調整したくなったときのために書き残しておきます。
-
-- `autoLayout` の第 2・第 3 引数（ランク間隔・ノード間隔）。要素の間隔は ELK の既定のままで、
-  PlantUML から ELK のスペーシングを指定する手段はない
-- `plantuml.skinparams` の `linetype`（ELK が独自に直交ルーティングするため）
-- 境界ラベルの `HorizontalAlignment`
+代わりに、**サービスのアイコンは表示できません**。Structurizr の Mermaid エクスポーターが `icon` の指定を無視するためで、設定では回避できません。
 
 Structurizr の公式ツールでも `workspace.dsl` をそのまま開けます。
 
@@ -101,8 +166,3 @@ Structurizr の公式ツールでも `workspace.dsl` をそのまま開けます
 # ブラウザで http://localhost:8080 を開くと、レイアウトを調整しながら図を確認できる
 docker run --rm -p 8080:8080 -v "$(pwd)/docs/architecture:/usr/local/structurizr" structurizr/structurizr local
 ```
-
-## アイコンの出典
-
-- **AWS** — [awslabs/aws-icons-for-plantuml](https://github.com/awslabs/aws-icons-for-plantuml)（AWS 公式のアーキテクチャアイコン）
-- **Google** — `gstatic.com` が配信している Google の公式プロダクトアイコン

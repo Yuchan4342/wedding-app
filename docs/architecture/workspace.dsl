@@ -13,15 +13,15 @@ workspace "Wedding App" "結婚式の Web 招待状アプリケーションの C
 
             // AWS 上のリソースはまとめて枠で囲む（infra/ の Terraform 管理対象）
             group "Amazon Web Services" {
-                hosting = container "静的ホスティング" "ビルド成果物（HTML / JS / CSS / 画像）を置く。Cloudflare の IP レンジからの GetObject だけを許可する" "Amazon S3（静的ウェブサイトホスティング）" "Amazon S3"
-                api = container "出欠回答 API" "GET /invitation-answers/{userId} と POST /invitation-answers。Lambda を介さず、VTL マッピングテンプレートで DynamoDB と直接統合する。IAM 認可" "Amazon API Gateway（REST API）" "Amazon API Gateway"
-                table = container "回答テーブル" "出欠回答を 1 ゲスト 1 アイテムで保存する（ハッシュキー userId）" "Amazon DynamoDB" "Amazon DynamoDB"
+                hosting = container "静的ホスティング" "ビルド成果物（HTML / JS / CSS / 画像）を置く。Cloudflare の IP レンジからの GetObject だけを許可する" "Amazon S3（静的ウェブサイトホスティング）"
+                api = container "出欠回答 API" "GET /invitation-answers/{userId} と POST /invitation-answers。Lambda を介さず、VTL マッピングテンプレートで DynamoDB と直接統合する。IAM 認可" "Amazon API Gateway（REST API）"
+                table = container "回答テーブル" "出欠回答を 1 ゲスト 1 アイテムで保存する（ハッシュキー userId）" "Amazon DynamoDB"
             }
         }
 
-        cognito = softwareSystem "ID 管理（Amazon Cognito）" "ゲストのアカウント（ID とパスワード）を保持する。管理者が作成したユーザーだけがログインでき、サインアップは開放していない。User Pool でログインを、Identity Pool で API 呼び出し用の一時クレデンシャル発行を担う" "External,Amazon Cognito"
-        googleMaps = softwareSystem "Google Maps Embed API" "会場の地図を iframe で埋め込む" "External,Google Maps"
-        googleCalendar = softwareSystem "Google カレンダー" "「カレンダーに追加」リンクの遷移先" "External,Google Calendar"
+        cognito = softwareSystem "ID 管理（Amazon Cognito）" "ゲストのアカウント（ID とパスワード）を保持する。管理者が作成したユーザーだけがログインでき、サインアップは開放していない。User Pool でログインを、Identity Pool で API 呼び出し用の一時クレデンシャル発行を担う" "External"
+        googleMaps = softwareSystem "Google Maps Embed API" "会場の地図を iframe で埋め込む" "External"
+        googleCalendar = softwareSystem "Google カレンダー" "「カレンダーに追加」リンクの遷移先" "External"
         venueSite = softwareSystem "式場のゲスト向けサイト" "式場が用意するご列席者様専用サイトと食物アレルギー登録フォーム（URL を設定した場合のみ案内）" "External"
 
         // System Context レベルの関係
@@ -53,16 +53,8 @@ workspace "Wedding App" "結婚式の Web 招待状アプリケーションの C
     }
 
     views {
-        // 日本語を描画するためのフォント指定（export.sh がビルドするイメージに入っている）
-        properties {
-            "plantuml.skinparams" "defaultFontName=Noto Sans CJK JP"
-            // Structurizr が出力したスタイルを上書きする（理由はファイル内のコメント参照）
-            "plantuml.includes" "boundary-style.puml"
-        }
-
         // autoLayout には方向だけを渡す。引数でランク間隔・ノード間隔も指定できるが、
-        // レイアウトを ELK に切り替えてあるので効かない（boundary-style.puml 参照）。
-        // 間隔は ELK の既定のままで、PlantUML から調整する手段はない。
+        // Mermaid のエクスポートでは方向しか使われない。
 
         systemContext weddingApp "SystemContext" "Wedding App と利用者・外部システムの関係" {
             include *
@@ -91,29 +83,6 @@ workspace "Wedding App" "結婚式の Web 招待状アプリケーションの C
             element "External" {
                 background #999999
                 color #ffffff
-            }
-
-            // サービスのアイコン。PlantUML が描画時に URL から取得するため、
-            // エクスポートにはネットワーク接続が必要。
-            // AWS: awslabs/aws-icons-for-plantuml（AWS 公式のアーキテクチャアイコン）
-            element "Amazon S3" {
-                icon https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/main/dist/Storage/SimpleStorageService.png
-            }
-            element "Amazon API Gateway" {
-                icon https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/main/dist/NetworkingContentDelivery/APIGateway.png
-            }
-            element "Amazon DynamoDB" {
-                icon https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/main/dist/Database/DynamoDB.png
-            }
-            element "Amazon Cognito" {
-                icon https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/main/dist/SecurityIdentityCompliance/Cognito.png
-            }
-            // Google: gstatic.com の公式プロダクトアイコン
-            element "Google Maps" {
-                icon https://www.gstatic.com/images/branding/product/2x/maps_96dp.png
-            }
-            element "Google Calendar" {
-                icon https://www.gstatic.com/images/branding/product/2x/calendar_96dp.png
             }
         }
     }
