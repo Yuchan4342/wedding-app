@@ -84,6 +84,12 @@ workspace "Wedding App" "結婚式の Web 招待状アプリケーションの C
                 background #999999
                 color #ffffff
             }
+
+            // AWS のリソースを囲む枠。既定の線は薄すぎて枠と分かりにくいので、
+            // AWS のブランドカラーにして何の枠かも分かるようにする。
+            element "Group:Amazon Web Services" {
+                color #ff9900
+            }
         }
     }
 }
