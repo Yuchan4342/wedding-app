@@ -71,10 +71,16 @@ workspace "Wedding App" "結婚式の Web 招待状アプリケーションの C
 
         container weddingApp "Containers" "Wedding App を構成するコンテナ" {
             include *
-            autoLayout lr 300 600
+            autoLayout lr 600 600
         }
 
         styles {
+            // 関係のラベルは既定では 200px で折り返され、
+            // 1 本のラベルが何行にもなって隣の矢印のものと見分けにくくなる。
+            relationship "Relationship" {
+                width 400
+            }
+
             element "Person" {
                 shape Person
                 background #08427b
