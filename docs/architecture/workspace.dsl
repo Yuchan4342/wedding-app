@@ -53,9 +53,11 @@ workspace "Wedding App" "結婚式の Web 招待状アプリケーションの C
     }
 
     views {
-        // 日本語を描画するためのフォント指定（export.sh がビルドするイメージに入っている）
+        // defaultFontName: 日本語を描画するためのフォント（export.sh がビルドするイメージに入っている）
+        // linetype: 既定の曲線は大きく膨らむことがあり、ラベルが線から離れて見える。
+        //           折れ線にするとラベルが線の近くに収まる。
         properties {
-            "plantuml.skinparams" "defaultFontName=Noto Sans CJK JP"
+            "plantuml.skinparams" "defaultFontName=Noto Sans CJK JP,linetype=polyline"
             // Structurizr が出力したスタイルを上書きする（理由はファイル内のコメント参照）
             "plantuml.includes" "boundary-style.puml"
         }
