@@ -16,7 +16,7 @@ graph LR
     style 2 fill:#08427b,stroke:#052e56,color:#ffffff
     3["<div style='font-weight: bold'>Wedding App</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>結婚式の Web<br />招待状。招待状の表示・カウントダウン・出欠回答フォームを提供する（SPA<br />+ API Gateway + DynamoDB）</div>"]
     style 3 fill:#1168bd,stroke:#0b4884,color:#ffffff
-    9["<div style='font-weight: bold'>Amazon Cognito</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>User Pool / Identity<br />Pool。ゲストの認証と、API<br />呼び出しに使う一時クレデンシャルの発行</div>"]
+    9["<div style='font-weight: bold'>ID 管理（Amazon Cognito）</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>ゲストのアカウント（ID<br />とパスワード）を保持する。管理者が作成したユーザーだけがログインでき、サインアップは開放していない。User<br />Pool でログインを、Identity Pool で<br />API 呼び出し用の一時クレデンシャル発行を担う</div>"]
     style 9 fill:#999999,stroke:#6b6b6b,color:#ffffff
 
     1-. "<div>招待状を閲覧し、出欠を回答する</div><div style='font-size: 70%'>[HTTPS]</div>" .->3

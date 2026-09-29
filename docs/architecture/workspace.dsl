@@ -15,7 +15,7 @@ workspace "Wedding App" "結婚式の Web 招待状アプリケーションの C
             table = container "回答テーブル" "出欠回答を 1 ゲスト 1 アイテムで保存する（ハッシュキー userId）" "Amazon DynamoDB"
         }
 
-        cognito = softwareSystem "Amazon Cognito" "User Pool / Identity Pool。ゲストの認証と、API 呼び出しに使う一時クレデンシャルの発行" "External"
+        cognito = softwareSystem "ID 管理（Amazon Cognito）" "ゲストのアカウント（ID とパスワード）を保持する。管理者が作成したユーザーだけがログインでき、サインアップは開放していない。User Pool でログインを、Identity Pool で API 呼び出し用の一時クレデンシャル発行を担う" "External"
         googleMaps = softwareSystem "Google Maps Embed API" "会場の地図を iframe で埋め込む" "External"
         googleCalendar = softwareSystem "Google カレンダー" "「カレンダーに追加」リンクの遷移先" "External"
         venueSite = softwareSystem "式場のゲスト向けサイト" "式場が用意するご列席者様専用サイトと食物アレルギー登録フォーム（URL を設定した場合のみ案内）" "External"

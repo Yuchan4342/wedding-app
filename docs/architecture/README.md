@@ -35,7 +35,7 @@ graph LR
     style 2 fill:#08427b,stroke:#052e56,color:#ffffff
     3["<div style='font-weight: bold'>Wedding App</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>結婚式の Web<br />招待状。招待状の表示・カウントダウン・出欠回答フォームを提供する（SPA<br />+ API Gateway + DynamoDB）</div>"]
     style 3 fill:#1168bd,stroke:#0b4884,color:#ffffff
-    9["<div style='font-weight: bold'>Amazon Cognito</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>User Pool / Identity<br />Pool。ゲストの認証と、API<br />呼び出しに使う一時クレデンシャルの発行</div>"]
+    9["<div style='font-weight: bold'>ID 管理（Amazon Cognito）</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>ゲストのアカウント（ID<br />とパスワード）を保持する。管理者が作成したユーザーだけがログインでき、サインアップは開放していない。User<br />Pool でログインを、Identity Pool で<br />API 呼び出し用の一時クレデンシャル発行を担う</div>"]
     style 9 fill:#999999,stroke:#6b6b6b,color:#ffffff
 
     1-. "<div>招待状を閲覧し、出欠を回答する</div><div style='font-size: 70%'>[HTTPS]</div>" .->3
@@ -54,7 +54,7 @@ graph LR
 - **ゲスト（招待客）** — 管理者が配布した ID でログインし、招待状の閲覧と出欠回答をする
 - **管理者（新郎新婦）** — Cognito にゲストのアカウントを発行し、`bin/deploy` でアプリを配信し、回答を AWS コンソール（DynamoDB）で確認する
 - **Wedding App** — このリポジトリ。SPA（S3 + Cloudflare）、API Gateway、DynamoDB をまとめて 1 つのシステムとして扱う。内訳は下の Container 図を参照
-- **Amazon Cognito** — 認証基盤。アプリの一部ではなく利用する外部サービスとして描いている
+- **ID 管理（Amazon Cognito）** — ゲストの ID とパスワードを保持する。管理者がゲストごとにアカウントを作成し、サインアップは開放していない。アプリの一部ではなく、利用する外部サービスとして描いている
 - **Google Maps Embed API / Google カレンダー / 式場のゲスト向けサイト** — 招待状から埋め込み・リンクで参照する外部サービス。式場サイトは `guestSiteUrl` / `allergyFormUrl` を設定した場合だけ案内が出る
 
 ## Container 図
@@ -73,7 +73,7 @@ graph LR
     style 1 fill:#08427b,stroke:#052e56,color:#ffffff
     2["<div style='font-weight: bold'>管理者（新郎新婦）</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>ゲストのアカウントを発行し、回答を確認し、アプリをデプロイする</div>"]
     style 2 fill:#08427b,stroke:#052e56,color:#ffffff
-    9["<div style='font-weight: bold'>Amazon Cognito</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>User Pool / Identity<br />Pool。ゲストの認証と、API<br />呼び出しに使う一時クレデンシャルの発行</div>"]
+    9["<div style='font-weight: bold'>ID 管理（Amazon Cognito）</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>ゲストのアカウント（ID<br />とパスワード）を保持する。管理者が作成したユーザーだけがログインでき、サインアップは開放していない。User<br />Pool でログインを、Identity Pool で<br />API 呼び出し用の一時クレデンシャル発行を担う</div>"]
     style 9 fill:#999999,stroke:#6b6b6b,color:#ffffff
     10["<div style='font-weight: bold'>Google Maps Embed API</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>会場の地図を iframe で埋め込む</div>"]
     style 10 fill:#999999,stroke:#6b6b6b,color:#ffffff

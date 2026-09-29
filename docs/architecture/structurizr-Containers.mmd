@@ -8,7 +8,7 @@ graph LR
     style 1 fill:#08427b,stroke:#052e56,color:#ffffff
     2["<div style='font-weight: bold'>管理者（新郎新婦）</div><div style='font-size: 70%; margin-top: 0px'>[Person]</div><div style='font-size: 80%; margin-top:10px'>ゲストのアカウントを発行し、回答を確認し、アプリをデプロイする</div>"]
     style 2 fill:#08427b,stroke:#052e56,color:#ffffff
-    9["<div style='font-weight: bold'>Amazon Cognito</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>User Pool / Identity<br />Pool。ゲストの認証と、API<br />呼び出しに使う一時クレデンシャルの発行</div>"]
+    9["<div style='font-weight: bold'>ID 管理（Amazon Cognito）</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>ゲストのアカウント（ID<br />とパスワード）を保持する。管理者が作成したユーザーだけがログインでき、サインアップは開放していない。User<br />Pool でログインを、Identity Pool で<br />API 呼び出し用の一時クレデンシャル発行を担う</div>"]
     style 9 fill:#999999,stroke:#6b6b6b,color:#ffffff
     10["<div style='font-weight: bold'>Google Maps Embed API</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>会場の地図を iframe で埋め込む</div>"]
     style 10 fill:#999999,stroke:#6b6b6b,color:#ffffff
