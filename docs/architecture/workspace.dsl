@@ -53,36 +53,28 @@ workspace "Wedding App" "結婚式の Web 招待状アプリケーションの C
     }
 
     views {
-        // defaultFontName: 日本語を描画するためのフォント（export.sh がビルドするイメージに入っている）
-        // linetype: 既定の曲線は大きく膨らむことがあり、ラベルが線から離れて見える。
-        //           折れ線にするとラベルが線の近くに収まる。
+        // 日本語を描画するためのフォント指定（export.sh がビルドするイメージに入っている）
         properties {
-            "plantuml.skinparams" "defaultFontName=Noto Sans CJK JP,linetype=polyline"
+            "plantuml.skinparams" "defaultFontName=Noto Sans CJK JP"
             // Structurizr が出力したスタイルを上書きする（理由はファイル内のコメント参照）
             "plantuml.includes" "boundary-style.puml"
         }
 
-        // autoLayout の引数は <方向> <ランク間隔> <ノード間隔>。
-        // 省略時（ranksep 20 / nodesep 5 相当）だと要素が詰まって見えるので広げている。
-        // lr なので、ノード間隔が縦に並ぶ要素どうしの間隔になる。
+        // autoLayout には方向だけを渡す。引数でランク間隔・ノード間隔も指定できるが、
+        // レイアウトを ELK に切り替えてあるので効かない（boundary-style.puml 参照）。
+        // 間隔は ELK の既定のままで、PlantUML から調整する手段はない。
 
         systemContext weddingApp "SystemContext" "Wedding App と利用者・外部システムの関係" {
             include *
-            autoLayout lr 300 600
+            autoLayout lr
         }
 
         container weddingApp "Containers" "Wedding App を構成するコンテナ" {
             include *
-            autoLayout lr 600 600
+            autoLayout lr
         }
 
         styles {
-            // 関係のラベルは既定では 200px で折り返され、
-            // 1 本のラベルが何行にもなって隣の矢印のものと見分けにくくなる。
-            relationship "Relationship" {
-                width 400
-            }
-
             element "Person" {
                 shape Person
                 background #08427b

@@ -74,13 +74,26 @@ workspace.dsl --[structurizr]--> *.puml --[plantuml]--> *.svg
 - コンテナ間の関係を書くと、システム間の関係が自動で補完される（implied relationship）。
   System Context レベルで表現を変えたい関係は、`workspace.dsl` のように明示的に書いておくと補完されない
 
-### PlantUML を使っている理由
+### PlantUML と ELK を使っている理由
 
 当初は Mermaid で出力していましたが、以下の理由で PlantUML に移行しました。
 
 - **アイコンを表示できない** — Structurizr の Mermaid エクスポーターは `icon` の指定を無視する
 - **矢印とラベルが重なる** — Mermaid（dagre）はエッジのラベルをノードとして配置するため、
   関係が増えると重なって読めなくなる。設定では回避できない
+
+さらに、PlantUML の既定のレイアウトエンジン（Graphviz）もエッジのラベルを中継ノードとして
+配置するため、長い矢印ではラベルが線から離れ、どの矢印の説明か分かりにくくなります。
+そこで [boundary-style.puml](boundary-style.puml) の `!pragma layout elk` で ELK に切り替えています。
+ELK はラベルを線に沿って置き、線も直交に整理するので対応を追いやすくなります。
+
+ELK に切り替えたことで効かなくなる設定があります。いずれも指定しても無視されるだけですが、
+調整したくなったときのために書き残しておきます。
+
+- `autoLayout` の第 2・第 3 引数（ランク間隔・ノード間隔）。要素の間隔は ELK の既定のままで、
+  PlantUML から ELK のスペーシングを指定する手段はない
+- `plantuml.skinparams` の `linetype`（ELK が独自に直交ルーティングするため）
+- 境界ラベルの `HorizontalAlignment`
 
 Structurizr の公式ツールでも `workspace.dsl` をそのまま開けます。
 
