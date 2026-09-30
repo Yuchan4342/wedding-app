@@ -48,6 +48,8 @@ graph LR
 
 ### 読み方
 
+図の主要な要素について説明する。
+
 - **ゲスト（招待客）** — 管理者が配布した ID でログインし、招待状の閲覧と出欠回答をする
 - **管理者（新郎新婦）** — Cognito にゲストのアカウントを発行し、`bin/deploy` でアプリを配信し、回答を AWS コンソール（DynamoDB）で確認する
 - **Wedding App** — このリポジトリ。SPA（S3 + Cloudflare）、Cognito、API Gateway、DynamoDB をまとめて 1 つのシステムとして扱う。ログイン認証は Cognito に任せており、アプリ側でパスワードは扱わない。内訳は下の Container 図を参照
@@ -120,15 +122,14 @@ graph LR
 
 ### 読み方
 
+図の主要な要素について説明する。
+
 - **CDN（Cloudflare）** — 配信元の S3 を隠し、HTTPS とキャッシュを担う。DNS も含めて Cloudflare 側の設定で、Terraform では管理していないため AWS の枠の外にある
 - **静的ホスティング（Amazon S3）** — `yarn build` の成果物を置く。`bin/deploy` が `aws s3 sync` で同期し、バケットポリシーで Cloudflare の IP レンジからの `GetObject` だけを許可する
 - **招待状 SPA（React / Redux / Amplify）** — ブラウザ上で動く本体。S3 から配信されたあとは、Cognito・API Gateway・Google の各サービスとブラウザから直接やり取りする。ブラウザ上で動くので AWS の枠には入らない
-- **ID 管理（Amazon Cognito）** — ゲストの ID とパスワードを保持する。管理者がゲストごとにアカウントを作成し、サインアップは開放していない。User Pool でログインし、Identity Pool で API 呼び出し用の一時クレデンシャルを受け取る。Identity Pool の authenticated ロールに `execute-api:Invoke` を付けているので、API Gateway の認可もここに依存している。ユーザー名は回答テーブルの `userId` としても使う
+- **ID 管理（Amazon Cognito）** — ゲストの ID とパスワードを保持する。Wedding App 専用の User Pool である。管理者がゲストごとにアカウントを作成し、サインアップは開放していない。User Pool でログインし、Identity Pool で API 呼び出し用の一時クレデンシャルを受け取る。Identity Pool の authenticated ロールに `execute-api:Invoke` を付けているので、API Gateway の認可もここに依存している。ユーザー名は回答テーブルの `userId` としても使う
 - **出欠回答 API（Amazon API Gateway）** — `GET /invitation-answers/{userId}` と `POST /invitation-answers`。Lambda を挟まず、VTL のマッピングテンプレートで DynamoDB と直接統合している。`AWS_IAM` 認可なので、Amplify が Identity Pool の一時クレデンシャルで SigV4 署名する
 - **回答テーブル（Amazon DynamoDB）** — 出欠回答を 1 ゲスト 1 アイテムで保存する（ハッシュキー `userId`）
-
-Cognito は Wedding App 専用のユーザープールで、ほかのコンテナと同じ Terraform で管理しているため、
-外部システムではなく Wedding App のコンテナとして描いています。
 
 デモモード（`yarn start:demo`）では、SPA が起動時に Amplify の `Auth` / `API` をモックへ差し替えるため、
 Cognito・API Gateway・DynamoDB のいずれにも接続せず、回答は `sessionStorage` に保存されます。
